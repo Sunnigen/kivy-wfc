@@ -14,7 +14,7 @@ from kivy.config import Config
 Config.set('input', 'mouse', 'mouse,disable_multitouch')  # disables right click multitouch function
 
 
-from map import Map
+from ui.map import Map
 from ui.popups import *
 
 
@@ -96,10 +96,10 @@ class Content(FloatLayout):
         # self.tile_set_file = 'dungeon_simple.pickle'
         # self.tile_set_file = 'wang_tiles_test_simple.pickle'
 
-        self.tile_palette.in_animation = Animation(pos_hint={'right': .25}, duration=.10)
-        self.tile_palette.out_animation = Animation(pos_hint={'right': .005}, duration=.10)
-        self.tile_palette.btn_close.pos_hint = {'right': 1, 'top': 1.0}
-        self.tile_palette.btn_close.size_hint = 0.3, 0.05
+        # self.tile_palette.in_animation = Animation(pos_hint={'right': .25}, duration=.10)
+        # self.tile_palette.out_animation = Animation(pos_hint={'right': .005}, duration=.10)
+        # self.tile_palette.btn_close.pos_hint = {'right': 1, 'top': 1.0}
+        # self.tile_palette.btn_close.size_hint = 0.3, 0.05
 
         self.prob_palette.in_animation = Animation(pos_hint={'x': .8}, duration=.10)
         self.prob_palette.out_animation = Animation(pos_hint={'x': .995}, duration=.10)
@@ -113,7 +113,7 @@ class Content(FloatLayout):
 
         self.wang_tiles_map = Map(self.x_max, self.y_max, self.tile_size, tile_set_file=self.tile_set_file)
         self.add_widget(self.wang_tiles_map, index=99)
-        # ---Pass Widgets to Wang Tile Map---
+        # Pass Widgets to Wang Tile Map
         self.pass_widgets()
 
         if self.tile_set_file:
@@ -143,13 +143,13 @@ class Content(FloatLayout):
             # print('ceasing generation')
             self.wang_tiles_map.continuous_generation = False
 
-    def force_tile(self):
-        if self.wang_tiles_map:
-            self.wang_tiles_map.force_tile()
+    # def force_tile(self):
+    #     if self.wang_tiles_map:
+    #         self.wang_tiles_map.force_tile()
 
-    def random_tiles(self):
-        if self.wang_tiles_map:
-            self.wang_tiles_map.place_random_tile()
+    # def random_tiles(self):
+    #     if self.wang_tiles_map:
+    #         self.wang_tiles_map.place_random_tile()
 
     def load_initial_tileset(self, *args):
         if self.wang_tiles_map:
@@ -208,7 +208,7 @@ class Content(FloatLayout):
         popup.open()
 
     def display_matching_tiles(self):
-        # ---Check if Wang Tiles Map in Place---
+        # Check if Wang Tiles Map in Place
         if self.wang_tiles_map:
             self.wang_tiles_map.disable_user_interaction()
         else:
@@ -220,7 +220,7 @@ class Content(FloatLayout):
             print('No tiles found in Wang Tiles Map!')
             print('Tiles:', self.wang_tiles_map.tiles)
             return
-        # ---Add Widgets---
+        # Add Widgets
         popup = MatchingTiles(content=popup_content)
         main_tile = Label(
             pos_hint={'x': 0, 'top': 1.0},
@@ -257,7 +257,7 @@ class Content(FloatLayout):
         scrollview.add_widget(grid)
         popup_content.add_widget(scrollview)
 
-        # ---Modify Specific Tile Probability---
+        # Modify Specific Tile Probability
         layout_change_prob = FloatLayout(size_hint=(1, None), size=(self.parent.width, 51), pos_hint={'x': 0.0, 'top': 0.9})
         lbl_prob = Label(
             pos_hint={'x': 0, 'top': 0.9},
@@ -282,7 +282,7 @@ class Content(FloatLayout):
         layout_change_prob.add_widget(btn_change_prob)
         popup_content.add_widget(layout_change_prob)
 
-        # ---Spinner to Select Specific Tile---
+        # Spinner to Select Specific Tile
         # spinner = Spinner(
         #     pos_hint={'right': 1.0, 'top': 1.0},
         #     size_hint=(None, None),
@@ -330,12 +330,12 @@ class Content(FloatLayout):
 
     def _update_match_spinner(self, main_tile, main_tile_rect, grid, north_box, east_box, south_box, west_box, btn_change_prob, input_prob, lbl_prob, lbl_prob_rect, spinner, value):
 
-        # ---Update Main Tile---
+        # Update Main Tile
         main_tile.text = value
         main_tile_rect.texture = self.wang_tiles_map.tiles[value]
         # print(north_box, east_box, south_box, west_box)
 
-        # ---Update Matching Tile Display---
+        # Update Matching Tile Display
         grid.clear_widgets()
         north_box.clear_widgets()
         east_box.clear_widgets()
@@ -437,10 +437,10 @@ class Content(FloatLayout):
             lbl.text = 'Tile: %s(%s%%)' % (tile, tile_probability)
             # self.tile_palette.load_tile_palette(self.wang_tiles_map.tiles, self.wang_tiles_map.base_probability)
 
-    def probability_change(self, *args):
-        # ---Save All Changes to Probabilities---
-        if self.wang_tiles_map:
-            self.wang_tiles_map.save_probabilities()
+    # def probability_change(self, *args):
+    #     # Save All Changes to Probabilities
+    #     if self.wang_tiles_map:
+    #         self.wang_tiles_map.save_probabilities()
 
     def reduce_probabilities(self, inputs, *args):
         for input in inputs:
@@ -468,7 +468,7 @@ class Content(FloatLayout):
         popup_content = BoxLayout(orientation='vertical')
         file_chooser = FileChooserListView(
             filters=['*.pickle'],
-            rootpath=os.path.dirname(os.path.realpath(__file__))
+            rootpath=os.path.dirname(os.path.realpath(__file__)) + "/data"
         )
         file_chooser.bind(on_submit=self.selected_tileset)
         # file_chooser.bind(on_submit=self.dismiss_popup)
@@ -529,19 +529,19 @@ class Content(FloatLayout):
             self.wang_tiles_map.lbl_stats = self.lbl_stats
             self.wang_tiles_map.lbl_current = self.lbl_current
             self.wang_tiles_map.prob_palette = self.prob_palette
-            self.wang_tiles_map.tile_palette = self.tile_palette
+            # self.wang_tiles_map.tile_palette = self.tile_palette
 
             self.prob_palette.initialize_palette()
-            self.tile_palette.initialize_palette()
+            # self.tile_palette.initialize_palette()
 
     def update_lbl_rect(self, label, rect, *args):
         rect.pos = (label.center[0] + (rect.size[0]), label.center[1] - (rect.size[1]/2))
 
 
-class WaveFunctionCollapseApp(App):
+class KivyWFC(App):
     def build(self):
         return Content()
 
 
 if __name__ == '__main__':
-    WaveFunctionCollapseApp().run()
+    KivyWFC().run()

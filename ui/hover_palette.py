@@ -4,7 +4,7 @@ from functools import partial
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.factory import Factory
-from kivy.graphics import Rectangle
+from kivy.graphics import Color, Rectangle
 from kivy.lang import Builder
 from kivy.properties import BooleanProperty, ObjectProperty
 from kivy.uix.behaviors import ButtonBehavior
@@ -143,7 +143,8 @@ class Palette(ButtonBehavior, FloatLayout, HoverBehavior):
         self.rect_lbl = []
         self.cursor = None
         # TODO: Find a way to obtain general tile size/modify size of scroll label in relation to specific tile size
-        self.displayed_tile_size = (27, 27)  # modify this as required
+        self.displayed_tile_size = (27, 27)  # modify this as required\
+
 
     def initialize_cursor(self):
         # self.cursor = MapCursor
@@ -154,14 +155,15 @@ class Palette(ButtonBehavior, FloatLayout, HoverBehavior):
             self.lbl_rect = Rectangle(size=self.displayed_tile_size)
         self.bind(pos=partial(self.update_lbl_rect, self.selected_lbl, self.lbl_rect),
                   size=partial(self.update_lbl_rect, self.selected_lbl, self.lbl_rect))
+        # self.size = self.size
         # self.update_lbl_rect(self.selected_lbl, self.lbl_rect)
-        Clock.schedule_once(self.refresh_lbl, 0.01)
+        Clock.schedule_once(self.refresh_lbl, 0.05)
+        self.on_mouse_enter()
+        self.on_mouse_leave()
 
     def load_tile_palette(self, tiles, probability):
         # print('\nload_tile_palette')
         self.clear_prob_palette()
-        # if self.lbl_rect:
-        #     self.selected_lbl.canvas.remove(self.lbl_rect)
         self.selected_lbl.text = 'File: %s\nThere are %s tiles.' % (self.parent.tile_set_file, len(tiles.keys()))
         self.selected_lbl.halign = 'center'
         ordered_tiles = OrderedDict(sorted(tiles.items(), key=lambda t: int(t[0])))
@@ -192,11 +194,11 @@ class Palette(ButtonBehavior, FloatLayout, HoverBehavior):
                 #      'nearest_mipmap_linear']
                 # )
 
-
             self.bind(pos=partial(self.update_lbl_rect, lbl, lbl_rect_prob),
                       size=partial(self.update_lbl_rect, lbl, lbl_rect_prob))
             self.rect_list.append(lbl_rect_prob)
             self.rect_lbl.append(lbl)
+
             self.prob_layout.add_widget(lbl)
 
             # self.update_lbl_rect(lbl, lbl_rect_prob)
@@ -244,7 +246,6 @@ class Palette(ButtonBehavior, FloatLayout, HoverBehavior):
         if len(self.rect_lbl) > 0:
             for i in range(len(self.rect_lbl)):
                 self.update_lbl_rect(self.rect_lbl[i], self.rect_list[i])
-
         self.update_lbl_rect(self.selected_lbl, self.lbl_rect)
 
     def clear_prob_palette(self):
@@ -254,7 +255,7 @@ class Palette(ButtonBehavior, FloatLayout, HoverBehavior):
         self.prob_layout.clear_widgets()
 
     def on_opacity(self, *args, **kwargs):
-        # ---Hide GUI if BattleField is not Focused---
+        # Hide GUI if BattleField is not Focused
         # print('hover gui opacity: %d' % self.opacity)
         if self.opacity < 1:
             # print('hiding h9overlayout')
@@ -332,4 +333,7 @@ class Palette(ButtonBehavior, FloatLayout, HoverBehavior):
         self.parent.remove_widget(self)
 
     def update_lbl_rect(self, label, rect, *args):
+        # correct_pos = label.to_parent(*label.center)
+        # rect.pos = (correct_pos[0] + (rect.size[0]), correct_pos[1] - (rect.size[1]/2))
         rect.pos = (label.center[0] + (rect.size[0]), label.center[1] - (rect.size[1]/2))
+        print("update_lbl_rect pos:", rect.pos)

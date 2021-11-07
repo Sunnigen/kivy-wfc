@@ -41,7 +41,7 @@
     lbl_stats:_lbl_stats
     lbl_current:_lbl_current
     prob_palette:_prob_palette
-    tile_palette:_tile_palette
+    # tile_palette:_tile_palette
     generation_switch:_generation_switch
 
     size_hint: 1, 1
@@ -84,23 +84,31 @@
         pos_hint: {'x': 0.0, 'top': 1.0}
         on_active: root.continuous_generation(self, self.active)
 
+    Label:
+        text: "(Spacebar)"
+        pos_hint: {'x': 0.1, 'top': 1.0}
+        size_hint: 0.1, 0.05
+        text_size: self.size
+        halign: "left"
+        valign: "middle"
+
     Button:
-        pos_hint: {'right': 0.8, 'top': 0.9}
+        pos_hint: {'right': 0.7, 'top': 1.0}
         size_hint: 0.1, 0.1
         text: 'Map Size'
         on_press: root.map_size_popup()
 
-    Button:
-        pos_hint: {'right': 0.9, 'top': 0.9}
-        size_hint: 0.1, 0.1
-        text: 'Random'
-        on_press: root.random_tiles()
+    # Button:
+        # pos_hint: {'right': 0.9, 'top': 0.9}
+        # size_hint: 0.1, 0.1
+        # text: 'Random'
+        # on_press: root.random_tiles()
 
-    Button:
-        pos_hint: {'right': 1.0, 'top': 0.9}
-        size_hint: 0.1, 0.1
-        text: 'Save Prob'
-        on_press: root.probability_change()
+    # Button:
+        # pos_hint: {'right': 1.0, 'top': 0.9}
+        # size_hint: 0.1, 0.1
+        # text: 'Save Prob'
+        # on_press: root.probability_change()
 
     Button:
         pos_hint: {'right': 0.7, 'top': 1}
@@ -109,8 +117,8 @@
         on_press: root.display_matching_tiles()
 
     Button:
-        pos_hint: {'right': 0.7, 'top': 0.9}
-        size_hint: 0.1, 0.1
+        pos_hint: {'right': 0.60, 'top': 1.0}
+        size_hint: 0.15, 0.1
         text: 'Toggle Border'
         on_press: root.toggle_border()
 
@@ -132,11 +140,11 @@
         text: 'Print Stats'
         on_press: root.print_stats()
 
-    Button:
-        pos_hint: {'right': 1, 'top': 0.8}
-        size_hint: 0.1, 0.1
-        text: 'Force'
-        on_press: root.force_tile()
+    # Button:
+        # pos_hint: {'right': 1, 'top': 0.8}
+        # size_hint: 0.1, 0.1
+        # text: 'Force'
+        # on_press: root.force_tile()
 
     Palette:
         id: _prob_palette
@@ -144,11 +152,11 @@
         size_hint: (.20, 0.70)
         pos_hint: {'x':.995, 'top':.70}
 
-    Palette:
-        id: _tile_palette
-        palette_type: 'tile'
-        size_hint: (0.25, 1)
-        pos_hint: {'right':.005, 'top':1}
+    # Palette:
+        # id: _tile_palette
+        # palette_type: 'tile'
+        # size_hint: (0.25, 1)
+        # pos_hint: {'right':.005, 'top':1}
 
     Label:
         id: _lbl_stats

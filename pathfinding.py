@@ -155,7 +155,7 @@ def breadth_first_search_with_probability(graph, start, mov):
 
 if __name__ == '__main__':
 
-    # ---Map Constraints---
+    # Map Constraints
     x_max = 8
     y_max = 8
     mov = 3
@@ -170,7 +170,7 @@ if __name__ == '__main__':
     '''
     OBSTACLES_1 = []
     OBSTACLES_2 = []
-    # ---Populate With Obstacles---
+    # Populate With Obstacles
     # for i in range(randint(50, 100)):
     # for i in range(450):
     #     x = randint(0, x_max-1)

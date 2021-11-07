@@ -16,7 +16,7 @@ class MatchingTiles(Popup):
         super(MatchingTiles, self).__init__(**kwargs)
 
     def display_matching_tiles(self):
-        # ---Check if Wang Tiles Map in Place---
+        # Check if Wang Tiles Map in Place
         if self.wang_tiles_map:
             self.wang_tiles_map.disable_user_interaction()
         else:
@@ -28,7 +28,7 @@ class MatchingTiles(Popup):
             print('No tiles found in Wang Tiles Map!')
             print('Tiles:', self.wang_tiles_map.tiles)
             return
-        # ---Add Widgets---
+        # Add Widgets
         popup = MatchingTiles(content=popup_content)
         main_tile = Label(
             pos_hint={'x': 0, 'top': 1.0},

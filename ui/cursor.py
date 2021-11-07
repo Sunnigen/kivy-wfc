@@ -74,7 +74,7 @@ class MapCursor(Rectangle):
         Animation(pos=new_pos, duration=.1).start(self)
 
     def begin_cursor_animation(self):
-        # ---Highlighting Widget Animation---
+        # Highlighting Widget Animation
         self.reveal_cursor()
         self.cursor_anim_1 = Animation(a=.75, duration=.5)
         self.cursor_anim_2 = Animation(a=0, duration=.5)
@@ -86,7 +86,7 @@ class MapCursor(Rectangle):
             self.cursor_anim_1.start(self.hue)
 
     def cancel_cursor_animation(self, dt=0, *args):
-        # ---Cancel Animation---
+        # Cancel Animation
         if isinstance(self.cursor_anim_1, Animation):
             self.cursor_anim_1.cancel(self)
             self.cursor_anim_2.cancel(self)

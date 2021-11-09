@@ -336,4 +336,4 @@ class Palette(ButtonBehavior, FloatLayout, HoverBehavior):
         # correct_pos = label.to_parent(*label.center)
         # rect.pos = (correct_pos[0] + (rect.size[0]), correct_pos[1] - (rect.size[1]/2))
         rect.pos = (label.center[0] + (rect.size[0]), label.center[1] - (rect.size[1]/2))
-        print("update_lbl_rect pos:", rect.pos)
+        # print("update_lbl_rect pos:", rect.pos)

@@ -48,34 +48,34 @@
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
     Button:
-        pos_hint: {'x': 0.0, 'top': 0.75}
+        pos_hint: {'x': 0.0, 'top': 0.95}
         size_hint: 0.1, 0.05
         text: '1 Tile'
         on_press: root.generate(1)
 
-    Button:
-        pos_hint: {'x': 0.0, 'top': 0.8}
-        size_hint: 0.1, 0.05
-        text: '5 Tiles'
-        on_press: root.generate(5)
+    # Button:
+        # pos_hint: {'x': 0.0, 'top': 0.8}
+        # size_hint: 0.1, 0.05
+        # text: '5 Tiles'
+        # on_press: root.generate(5)
 
-    Button:
-        pos_hint: {'x': 0.0, 'top': 0.85}
-        size_hint: 0.1, 0.05
-        text: '10 Tiles'
-        on_press: root.generate(10)
+    # Button:
+        # pos_hint: {'x': 0.0, 'top': 0.85}
+        # size_hint: 0.1, 0.05
+        # text: '10 Tiles'
+        # on_press: root.generate(10)
 
-    Button:
-        pos_hint: {'x': 0.0, 'top': 0.9}
-        size_hint: 0.1, 0.05
-        text: '20 Tiles'
-        on_press: root.generate(20)
+    # Button:
+        # pos_hint: {'x': 0.0, 'top': 0.9}
+        # size_hint: 0.1, 0.05
+        # text: '20 Tiles'
+        # on_press: root.generate(20)
 
-    Button:
-        pos_hint: {'x': 0.0, 'top': 0.95}
-        size_hint: 0.1, 0.05
-        text: '50 Tiles'
-        on_press: root.generate(50)
+    # Button:
+        # pos_hint: {'x': 0.0, 'top': 0.95}
+        # size_hint: 0.1, 0.05
+        # text: '50 Tiles'
+        # on_press: root.generate(50)
 
     Switch:
         id: _generation_switch
@@ -111,13 +111,13 @@
         # on_press: root.probability_change()
 
     Button:
-        pos_hint: {'right': 0.7, 'top': 1}
+        pos_hint: {'right': 0.6, 'top': 1}
         size_hint: 0.1, 0.1
         text: 'Matches'
         on_press: root.display_matching_tiles()
 
     Button:
-        pos_hint: {'right': 0.60, 'top': 1.0}
+        pos_hint: {'right': 0.50, 'top': 1.0}
         size_hint: 0.15, 0.1
         text: 'Toggle Border'
         on_press: root.toggle_border()

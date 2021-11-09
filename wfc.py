@@ -36,7 +36,8 @@ class WaveFunctionCollapse:
         self.gui = gui
 
         # Subtract .1 so we can at least retain some probability data at max tile range
-        self.tile_range = (width * height) // 4
+        # self.tile_range = (width * height) // 4
+        self.tile_range = 4
         self.tile_range += 0.1
 
         self.undecided_tiles = deque()
@@ -156,6 +157,7 @@ class WaveFunctionCollapse:
             # Check if Tile Already Exists for Coordinate
             if self.tile_array[coordinate[0]][coordinate[1]] != "1":
                 continue
+
             (i, j) = coordinate
             probability_list, final_tile_type = self.obtain_probabilities_list(new_tile, i, j, x, y,
                                                                                coordinates_travelled.index(coordinate))
@@ -165,6 +167,7 @@ class WaveFunctionCollapse:
                 self.tiles_array_probabilities[i][j] = probability_list
             else:
                 # No Probability Found
+                print("### Impossible Tile Found at (%s, %s)###" % (coordinate[0], coordinate[1]))
                 self.tiles_array_probabilities[i][j] = {}
 
     def obtain_probabilities_list(self, new_tile, i, j, x, y, iteration):

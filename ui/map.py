@@ -74,6 +74,7 @@ class Map(Scatter):
 
     def on_keyboard_down(self, keyboard, keycode, *args):
         keycode = str(keycode)
+        print("keycode: %s" % keycode)
 
         # Continuous Generation Toggle
         if keycode == '32':  # Space
@@ -92,14 +93,28 @@ class Map(Scatter):
                 self.continuous_generation = True
                 return
 
+        # Advance X number of tile(s)
+        elif keycode in ['49', '257']:
+            self.parent.generate(1)
+        elif keycode in ['53', '261']:
+            self.parent.generate(5)
+
+        # Step back X number of tile(s)
+        elif keycode == '8':
+            self.parent.generate(-1)
+
+        # Reset Map
+        elif keycode == '114':  # 'R'
+            self.parent.reset_map_texture()
+
         # Move Cursor
-        if keycode == '119':  # 'W'
+        elif keycode in ['119', '264']:  # 'W'
             self.cursor.increment_y(1)
-        elif keycode == '115':  # 'S'
+        elif keycode in ['115', '258']:  # 'S'
             self.cursor.increment_y(-1)
-        elif keycode == '97':  # 'A'
+        elif keycode in ['97', '260']:  # 'A'
             self.cursor.increment_x(-1)
-        elif keycode == '100':  # 'D'
+        elif keycode in ['100', '262']:  # 'D'
             self.cursor.increment_x(1)
 
         # Diagonal
@@ -350,7 +365,8 @@ class Map(Scatter):
         self.x_max, self.y_max, self.tile_size = x_max, y_max, tile_size
         self.wfc.x_max, self.wfc.y_max = x_max, y_max
 
-        self.wfc.tile_range = int(self.wfc.x_max * self.wfc.y_max)
+        # self.wfc.tile_range = int(self.wfc.x_max * self.wfc.y_max)
+        self.wfc.tile_range = 4
         # self.wfc.tile_range = (self.x_max + self.y_max)/4  # Subtract .1 so we can at least retain some probability data at max tile range
         # if self.wfc.tile_range < 1:
         #     self.wfc.tile_range = 1

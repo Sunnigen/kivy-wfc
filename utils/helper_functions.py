@@ -87,7 +87,10 @@ def dict_combine(dicts):
 
 
 def dict_intersect(dicts):
+    # return dicts[0]
     # Increment and Find Common Keys Between Dictionaries
+    # print("number of dicts: ", len(dicts))
+
     comm_keys = dicts[0].keys()
     for d in dicts[1:]:
         # intersect keys first
@@ -98,10 +101,11 @@ def dict_intersect(dicts):
     for key in comm_keys:
         # base_probability = self.base_probability[str(key)][side]
         for d in dicts:
-            if key in results:
-                results[key] += d[key]
-            else:
-                results[key] = d[key]
+            # if key in results:
+            #     results[key] += d[key]
+            # else:
+            #     results[key] = d[key]
+            results[key] = d[key]
     return results
 
 
@@ -132,10 +136,13 @@ def weighted_choice(dict):
     # print('keys:', keys)
     # print('probabilities:', probabilities)
     result = WeightedChoice(keys, p=probabilities)
-    return result
+    # print("keys: ", keys)
+    return random.choice(keys)
 
 
 def determine_probability_value(x, y, origin_x, origin_y, tile_range):
+    return 1
+
     # How Far Selected Tile is from Origin Tile
     value = distance_value((x, y), (origin_x, origin_y), tile_range)
     return value

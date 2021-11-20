@@ -91,11 +91,10 @@ class Content(FloatLayout):
     def __init__(self, **kwargs):
         super(Content, self).__init__(**kwargs)
         # self.tile_set_file = 'wang_tiles_classic.pickle'
-        # self.tile_set_file = 'grass_corner.pickle'
-        # self.tile_set_file = 'water_grass_no_solid.pickle'
-        self.tile_set_file = 'grass_water.pickle'
-        # self.tile_set_file = 'dungeon_simple.pickle'
-        # self.tile_set_file = 'wang_tiles_test_simple.pickle'
+        # self.tile_set_file = 'grass_water_simple.pickle'
+        # self.tile_set_file = 'test1.pickle'
+        # self.tile_set_file = 'grass.pickle'
+        self.tile_set_file = 'dungeon_simple.pickle'
 
         # self.tile_palette.in_animation = Animation(pos_hint={'right': .25}, duration=.10)
         # self.tile_palette.out_animation = Animation(pos_hint={'right': .005}, duration=.10)

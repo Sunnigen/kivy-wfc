@@ -168,6 +168,7 @@ if __name__ == '__main__':
                        244, 253, 254, 273, 274, 283, 284, 303, 304, 313, 314, 333, 334, 343, 344, 373, 374, 403, 404,
                        433, 434]]
     '''
+
     OBSTACLES_1 = []
     OBSTACLES_2 = []
     # Populate With Obstacles
@@ -181,7 +182,7 @@ if __name__ == '__main__':
     # OBSTACLES = OBSTACLES_1 + OBSTACLES_2
 
     g = GridWithWeights(x_max, y_max)
-    # g.walls = OBSTACLES_1
+    # g.walls = [(1, 1)]
     # g.walls = OBSTACLES_2
     # g.walls = OBSTACLES
 

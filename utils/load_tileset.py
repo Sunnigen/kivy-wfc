@@ -317,7 +317,7 @@ def load_tile_textures(pickle_file, tile_size):
         # print('Tile Key: %s, Pixel Data:' % tile_key, pixel_data)
         texture = Texture.create(size=(tile_size, tile_size))
         texture.blit_buffer(
-            pbuffer=pixel_data[0],
+            pbuffer=pixel_data,
             colorfmt='rgba',
             bufferfmt='ubyte',
             pos=(0, 0)

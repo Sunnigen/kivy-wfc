@@ -15,7 +15,7 @@ from kivy.uix.scatter import Scatter
 
 from ui.cursor import MapCursor
 from utils.helper_functions import *
-from utils import load_tileset
+from utils import create_data_set
 from wfc import WaveFunctionCollapse
 
 
@@ -74,13 +74,12 @@ class Map(Scatter):
 
     def on_keyboard_down(self, keyboard, keycode, *args):
         keycode = str(keycode)
-        print("keycode: %s" % keycode)
+        # print("keycode: %s" % keycode)
 
         # Continuous Generation Toggle
         if keycode == '32':  # Space
             if self.continuous_generation:
                 # Halt generation
-
                 if self.parent:
                     self.parent.generation_switch.active = False
 
@@ -176,7 +175,7 @@ class Map(Scatter):
         return super(self.__class__, self).on_touch_down(touch)
 
     def place_tile(self, x, y, dt=0):
-        key, texture = str(self.wfc.tile_array[x][y]), self.tiles[str(self.wfc.tile_array[x][y])]
+        key, texture = self.wfc.tile_array[x][y], self.tiles[self.wfc.tile_array[x][y]]
         self.tile_rect_array[x][y].texture = texture
 
     def print_stats(self):
@@ -202,12 +201,12 @@ class Map(Scatter):
     def update_palette(self):
         x, y = self.cursor.x_coord, self.cursor.y_coord
         tile = self.wfc.tile_array[x][y]
-        tile_tex = self.tiles[str(tile)]
+        tile_tex = self.tiles[tile]
         tile_prob = {}
 
         if len(self.wfc.tiles_array_probabilities[x][y]) > 0:
             for key, prob in self.wfc.tiles_array_probabilities[x][y].items():
-                tile_prob[key] = [prob, self.tiles[str(key)]]
+                tile_prob[key] = [prob, self.tiles[key]]
 
         self.prob_palette.update_palette(x, y, tile, tile_tex, tile_prob)
 
@@ -261,7 +260,7 @@ class Map(Scatter):
         for y in range(y_max):
             for x in range(x_max):
                 # key, texture = str(self.wfc.tile_array[x][y]), self.tiles[str(self.wfc.tile_array[x][y])][0]
-                key, texture = str(self.wfc.tile_array[x][y]), self.tiles[str(self.wfc.tile_array[x][y])][0]
+                key, texture = self.wfc.tile_array[x][y], self.tiles[self.wfc.tile_array[x][y]][0]
                 self.tile_rect_array[x][y].texture = texture
 
     def on_continuous_generation(self, *args):
@@ -393,7 +392,7 @@ class Map(Scatter):
         else:
             tileset_file = file
         # print('Loading Tileset File: %s' % tileset_file)
-        self.tiles, self.wfc.matching_tile_data, self.wfc.base_probability = load_tileset.load_tile_textures(tileset_file, self.tile_size)
+        self.tiles, self.wfc.matching_tile_data, self.wfc.base_probability = create_data_set.load_tile_textures(tileset_file, self.tile_size)
         # print('tiles:', self.tiles)
         # self.tile_palette.load_tile_palette(self.tiles, self.wfc.base_probability)
 
@@ -406,7 +405,7 @@ class Map(Scatter):
             return
         # print('self.tiles:', self.tiles)
 
-        tiles = load_tileset.untexture_tiles(self.tiles)
+        tiles = create_data_set.untexture_tiles(self.tiles)
 
         with open(self.tileset_file, 'wb') as f:
             pickle.dump(tiles, f)

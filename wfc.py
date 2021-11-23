@@ -8,16 +8,33 @@ from utils import helper_functions
 import pathfinding
 
 
+import cProfile
+import functools
+import pstats
+import tempfile
+
+def profile_me(func):
+    @functools.wraps(func)
+    def wraps(*args, **kwargs):
+        file = tempfile.mktemp()
+        profiler = cProfile.Profile()
+        profiler.runcall(func, *args, **kwargs)
+        profiler.dump_stats(file)
+        metrics = pstats.Stats(file)
+        metrics.strip_dirs().sort_stats('time').print_stats(100)
+    return wraps
+
+
 class WaveFunctionCollapse:
     x_max: int = 0
     y_max: int = 0
     tile_range: int = 0
     undecided_tiles: Iterable = None
+    impossible_tiles: Iterable = None
     matching_tile_data: Dict = None  # dictionary of tile numbers and their matching tiles respective to each side
     base_probability: Dict = None  # dict containing tile numbers as keys and connected probabilities per each direction
     tile_array: List[List[int]] = None  # 2D matrix containing tile numbers stored as int
     tiles_array_probabilities: np.ndarray = None  # 2D Numpy Matrix of dicts of every possible tile per coordinate
-    # self.lowest_entropy = [(999, 999), 999]
     lowest_entropy: Tuple[Tuple[int, int], int] = [(999, 999), 999]  # coordinate point with lowest tile probability
     probability_coordinate_list: Dict = None  # test to find highest entropy, {val:key}
 
@@ -44,6 +61,7 @@ class WaveFunctionCollapse:
         self.matching_tile_data = {}
         self.base_probability = {}
 
+
         self.last_tile_changed = (0, 0)
 
         self.reset_generation_data()
@@ -54,19 +72,45 @@ class WaveFunctionCollapse:
         self.tiles_array_probabilities = np.array(
             [[{} for y in range(self.y_max)] for x in range(self.x_max)])  # tile probabilities
         self.undecided_tiles = deque([(x, y) for y in range(self.y_max) for x in range(self.x_max)])
+        self.impossible_tiles = []
         shuffle(self.undecided_tiles)
         self.attempts = 0
         self.tile_chosen_from_weighted_probabilities = 0
         self.tile_chosen_randomly = 0
         self.probability_reset = 0
-        self.reset_entropy()
+
+        # Start off with a random tile
+        x = (randint(0, self.x_max - 1))
+        y = (randint(0, self.y_max - 1))
+
+        self.lowest_entropy = [(x, y), 999]
+        if self.gui.lbl_stats:
+            self.gui.lbl_stats.text = 'Lowest Entropy|(%s, %s): %s' % (x, y, 999)
+
+            self.force_weighted_placement()
+
 
     def find_lowest_entropy(self):
+        # print('find_lowest_entropy')
         """
         find_lowest_entropy calculates the lowest value depending how many
         """
 
-        coord_score = [(999, 999), 999]
+        # self.reset_entropy()
+
+        for x, y in self.undecided_tiles:
+            if self.tiles_array_probabilities[x][y]:
+                entropy_score = len(self.tiles_array_probabilities[x][y])
+
+                if entropy_score < self.lowest_entropy[1]:
+                    self.lowest_entropy = [(x, y), entropy_score]
+
+        # Update Label
+        if self.gui.lbl_stats:
+            self.gui.lbl_stats.text = 'Lowest Entropy|(%s, %s): %s' % (self.lowest_entropy[0][0],
+                                                                       self.lowest_entropy[0][1],
+                                                                       self.lowest_entropy[1])
+        return
 
         # Loop Through all Tiles and Find Lowest Entropy
         for y in range(self.y_max):
@@ -74,7 +118,7 @@ class WaveFunctionCollapse:
                 if self.tiles_array_probabilities[x][y]:
                     # entropy_val = sum(Counter(self.tiles_array_probabilities[x][y].values()))
                     # print("entropy_val: ", entropy_val)
-                    possibility_count = len(self.tiles_array_probabilities[x][y].keys())
+                    possibility_count = len(self.tiles_array_probabilities[x][y])
                     # print("entropy_key: ", entropy_key)
                     # entropy = entropy_val/entropy_key
                     if possibility_count < coord_score[1]:
@@ -90,11 +134,35 @@ class WaveFunctionCollapse:
                                                                        self.lowest_entropy[0][1],
                                                                        self.lowest_entropy[1])
 
+    def force_weighted_placement(self):
+        # Force Placement of a Random Tile
+        # Needed if no collapsed tiles, to get things started
+        x = (randint(0, self.x_max - 1))
+        y = (randint(0, self.y_max - 1))
+
+        self.lowest_entropy = [(x, y), 999]
+
+        new_tile = randint(1, len(self.gui.tiles) - 1)
+
+        self.tile_array[x][y] = new_tile
+        self.field.walls.append((x, y))
+        if (x, y) in self.undecided_tiles:
+            self.undecided_tiles.remove((x, y))
+        self.reset_entropy()
+        self.probability_sphere(x, y, new_tile)
+        self.gui.place_tile(x, y)
+        if self.lowest_entropy[1] == 999:
+            self.find_lowest_entropy()
+
+        self.tiles_array_probabilities[x][y] = {}
+
+
+    # @profile_me
     def weighted_placement(self, dt=0):
         # Weighted Placement with No Backjumping
 
         # 1. Check if There are Undecided Tiles
-        if len(self.undecided_tiles) < 1:
+        if not self.undecided_tiles:
             self.gui.generate_iter = 0
             return
 
@@ -104,41 +172,43 @@ class WaveFunctionCollapse:
         # 3. Check if Tile with Lowest Entropy Exists or Pick the Longest Lasting Undecided Tile
         if (x, y) in self.undecided_tiles:
             self.undecided_tiles.remove((x, y))
-        else:
-            x, y = self.undecided_tiles.popleft()
 
         # 4. Select Tile based on  Existing Probabilities else Select Random Tile
         new_tile = self.new_tile_based_on_surrounding_tiles(x, y)
 
-        # Random Selection from Neighbors
-        if not new_tile:
-            if self.check_decided_neighbors(x, y):
-                # No Decided Neighbors, Randomly Selecting Tile
-                new_tile = randint(1, len(self.gui.tiles.keys()))
-                self.tile_chosen_randomly += 1
-
         # 5. Update Probabilities Based on Tile Selected At Coordinate
-        if new_tile:
+        # if new_tile:
+            # print('new tile:', new_tile)
             # Update Tile Arrays
-            self.tile_chosen_from_weighted_probabilities += 1
-            self.tile_array[x][y] = new_tile
-            self.field.walls.append((x, y))
-            if (x, y) in self.undecided_tiles:
-                self.undecided_tiles.remove((x, y))
-            self.probability_sphere(x, y, new_tile)
+        self.tile_chosen_from_weighted_probabilities += 1
+        self.tile_array[x][y] = new_tile
+        self.field.walls.append((x, y))
+        self.reset_entropy()
+        self.probability_sphere(x, y, new_tile)
+        self.gui.place_tile(x, y)
+        if self.lowest_entropy[1] == 999:
+            self.find_lowest_entropy()
 
-        # 6. Finally, place Tile if Tile was Selected
+
+        # 6. Find Lowest Entropy
+        # print('emptying probabilities: ', x, y)
         self.tiles_array_probabilities[x][y] = {}
-        if self.lowest_entropy[0] not in self.undecided_tiles or not self.tiles_array_probabilities[self.lowest_entropy[0][0]][self.lowest_entropy[0][1]]:
-            self.reset_entropy()
-            if self.gui.lbl_stats:
-                self.gui.lbl_stats.text = 'Lowest Entropy|(%s, %s): %s' % (999, 999, 0)
-        self.find_lowest_entropy()
-        if self.lowest_entropy[1] <= 0 and len(self.undecided_tiles) > 0:
-            self.lowest_entropy[0] = self.undecided_tiles[0]
-        if new_tile:
-            self.gui.place_tile(x, y)
+
+        # if self.lowest_entropy[0] not in self.undecided_tiles or not self.tiles_array_probabilities[self.lowest_entropy[0][0]][self.lowest_entropy[0][1]]:
+
+
+        # self.find_lowest_entropy()
+        # if self.lowest_entropy[1] <= 0 and self.undecided_tiles:
+        #     self.lowest_entropy[0] = self.undecided_tiles[0]
+
+        # 7. Finally, place Tile if Tile was Selected
+        # if new_tile:
+        #     self.gui.place_tile(x, y)
+
+        # Update Generation Counter
         self.gui.generate_iter -= 1
+        # print('number of undecided tiles: %s' % len(self.undecided_tiles))
+        # print('number of impossible tiles: %s' % len(self.impossible_tiles))
 
     def probability_sphere(self, x, y, new_tile):
         """
@@ -152,28 +222,43 @@ class WaveFunctionCollapse:
             pathfinding.breadth_first_search_with_probability(self.field, start, self.tile_range)
 
         # Remove Existing Tile
-        if (x, y) in coordinates_travelled:
-            coordinates_travelled.remove((x, y))
+        if start in coordinates_travelled:
+            coordinates_travelled.remove(start)
 
         # Update probabilities all around initial tile
-        for coordinate in coordinates_travelled:
-            # Check if Tile Already Exists for Coordinate
-            if self.tile_array[coordinate[0]][coordinate[1]] != 0:
-                continue
+        # print('coordinates_traveled', coordinates_travelled,' starting at', start)
+        # if not coordinates_travelled:
+        #
 
-            (i, j) = coordinate
+
+        for coordinate in coordinates_travelled:
+            i, j = coordinate
             probability_list, final_tile_type = self.obtain_probabilities_list(new_tile, i, j, x, y,
                                                                                coordinates_travelled.index(coordinate))
+            # print('updating lowest entropy:', i, j, len(probability_list), probability_list)
 
-            if len(probability_list) > 0:
+            if probability_list:
                 # Set Final Probabilities
                 self.tiles_array_probabilities[i][j] = probability_list
+
+                # Check if Good Candidate for Next Lowest Entropy Selection
+                entropy_score = len(probability_list)
+
+                if entropy_score <= self.lowest_entropy[1]:
+                    self.lowest_entropy = [(i, j), entropy_score]
+                    # print(self.lowest_entropy)
+
+                    if self.gui.lbl_stats:
+                        self.gui.lbl_stats.text = 'Lowest Entropy|(%s, %s): %s' % (i, j, self.lowest_entropy[1])
+
             else:
                 # No Probability Found
-                print("\n### Impossible Tile Found at (%s, %s)###" % (coordinate[0], coordinate[1]))
+                print("\n### Impossible Tile Found at (%s, %s)###" % (i, j))
                 print("tile array probabilityes: ", self.tiles_array_probabilities[i][j])
                 print("coordinates_travelled: ", coordinates_travelled)
                 print("last tile changed: ", self.last_tile_changed)
+                self.impossible_tiles.append((i, j))
+                # self.undecided_tiles.remove((i, j))
                 # self.tiles_array_probabilities[i][j] = {}
                 self.gui.continuous_generation = False
 
@@ -197,20 +282,21 @@ class WaveFunctionCollapse:
                 ind, op_ind = helper_functions.find_opposite(direction)
                 # helper_functions.super_print('Checking: %s from coordinate: (%s, %s), Iteration: %s' % (direction, i, j, iteration))
                 tiles_list, tile_type = self.modify_probability(new_tile, op_ind, i, j, x, y, px, py)
+                # tiles_list, tile_type = self.modify_probability(new_tile, op_ind, i, j, x, y, px, py)
                 # print('%s Tile Type: %s' % (direction, tile_type))
-                if len(tiles_list.keys()) > 0:
-                    if tile_type == 'adjacent':
-                        # adjacent_tile_list = set( set(adjacent_tile_list.keys()) & tiles_list)
-                        adjacent_tile_list.append(tiles_list)
-                        # print('Appending to Adjacent Tile List:', tiles_list)
-                    elif tile_type == 'probability':
-                        adjacent_tile_list.append(tiles_list)
-                        probability_tile_list.append(tiles_list)
+
+                if tile_type == 'adjacent':
+                    # adjacent_tile_list = set( set(adjacent_tile_list.keys()) & tiles_list)
+                    adjacent_tile_list.append(tiles_list)
+                    # print('Appending to Adjacent Tile List:', tiles_list)
+                elif tile_type == 'probability':
+                    adjacent_tile_list.append(tiles_list)
+                    probability_tile_list.append(tiles_list)
                         # print('Appending to Probability Tile List:', tiles_list)
 
         if adjacent_tile_list:
             # Keep and Combine Matches Only Between Tiles
-            if len(self.tiles_array_probabilities[i][j].keys()) > 0:
+            if len(self.tiles_array_probabilities[i][j]) > 0:
                 adjacent_tile_list.append(self.tiles_array_probabilities[i][j])
             probability_list = helper_functions.dict_intersect(adjacent_tile_list)
             final_tile_type = 'adjacent'
@@ -228,59 +314,14 @@ class WaveFunctionCollapse:
         # print('returning complete probability_list:', probability_list)
         return probability_list, final_tile_type
 
-    # def obtain_probabilities_list(self, new_tile, i, j, x, y, iteration):
-    #     probability_tile_list = []
-    #     adjacent_tile_list = []
-    #     probability_list = []
-    #     final_tile_type = ''
-    #
-    #     direction_list = [(i + 0, j + 1, 'north'),
-    #                       (i + 1, j + 0, 'east'),
-    #                       (i + 0, j + (-1), 'south'),
-    #                       (i + (-1), j + 0, 'west')]
-    #     shuffle(direction_list)
-    #     for _ in range(4):
-    #         px, py, direction = direction_list.pop()
-    #         # if x == px and y == py:
-    #             # no point in looking at the origin coordinate, that should aleady have a decided tile
-    #             # continue
-    #         if self.check_coordinate_within_map(px, py):
-    #             ind, op_ind = helper_functions.find_opposite(direction)
-    #             # helper_functions.super_print('Checking: %s from coordinate: (%s, %s), Iteration: %s' % (direction, i, j, iteration))
-    #             tiles_list, tile_type = self.modify_probability(new_tile, op_ind, i, j, x, y, px, py)
-    #             # print('%s Tile Type: %s' % (direction, tile_type))
-    #             if len(tiles_list.keys()) > 0:
-    #                 if tile_type == 'adjacent':
-    #                     adjacent_tile_list.append(tiles_list)
-    #                     # print('Appending to Adjacent Tile List:', tiles_list)
-    #                 elif tile_type == 'probability':
-    #                     probability_tile_list.append(tiles_list)
-    #                     # print('Appending to Probability Tile List:', tiles_list)
-    #
-    #     if adjacent_tile_list:
-    #         # Keep and Combine Matches Only Between Tiles
-    #         if len(self.tiles_array_probabilities[i][j].keys()) > 0:
-    #             adjacent_tile_list.append(self.tiles_array_probabilities[i][j])
-    #         probability_list = helper_functions.dict_intersect(adjacent_tile_list)
-    #         final_tile_type = 'adjacent'
-    #     elif probability_tile_list:
-    #         # Combine All Probabilities
-    #         if len(self.tiles_array_probabilities[i][j].keys()) > 0:
-    #             probability_tile_list.append(self.tiles_array_probabilities[i][j])
-    #         probability_list = helper_functions.dict_combine(probability_tile_list)
-    #         # probability_list = helper_functions.dict_intersect(probability_tile_list)
-    #         final_tile_type = 'probability'
-    #
-    #     # print('Final Tile Type: %s' % final_tile_type)
-    #     # print('Final Probabilities:', probability_list)
-    #
-    #     # print('returning complete probability_list:', probability_list)
-    #     return probability_list, final_tile_type
-
     def new_tile_based_on_surrounding_tiles(self, x, y):
         # Check if Existing Coordinates have any Defined Probabilites
         # Note: In a perfect world, the statement below wouldn't be needed
         if len(self.tiles_array_probabilities[x][y]) < 1:
+            # print("No probabilities at (%s, %s)!!" % (x, y), self.tiles_array_probabilities[x][y])
+            # self.gui.continuous_generation = False
+            # import sys
+            # sys.exit()
             return None
 
         # Select New Tile from Possible tiles from surrounding tiles
@@ -300,14 +341,13 @@ class WaveFunctionCollapse:
             if self.check_coordinate_within_map(px, py):  # check within map
                 if self.tile_array[px][py] != 0:  # check for non-placeholder tile
                     match_list.append(self.matching_tile_data[self.tile_array[px][py]][op_ind])
-                    # match_list.append(self.matching_tile_data[self.tile_array[px][py]][op_ind].keys())
 
         # Return Impossible if New Tile isn't in the Matching List
 
         for m in match_list:
             if new_tile not in m:
                 # New Tile Does Not Match Surroundings!
-                print("# New Tile Does Not Match Surroundings!")
+                print("# New Tile at (%s, %s) Does Not Match Surroundings!" % (x, y))
                 print("match_list: ", match_list)
                 return None
         # New Tile is a Good Match
@@ -315,62 +355,49 @@ class WaveFunctionCollapse:
         # print("last tile changed: ", self.last_tile_changed)
         return new_tile
 
+    # @profile_me
     def modify_probability(self, new_tile, op_index, i, j, x, y, px, py):
         # Modify Probability at Given Coordinate
         # print('\nModify Probability at (%s, %s) from (%s, %s), from origin: (%s, %s)' % (i, j, px, py, x, y))
         # TODO: return if base_probability_value < 1
         # Obtain Probabilities from Previous Tiles and Propagate
-        tiles_to_check = Counter({})
+        modified_probabilities = Counter({})
         probability_value = 1
         # probability_value = helper_functions.determine_probability_value(i, j, x, y, self.tile_range)
-        if probability_value <= 0:
-            return {}, ''
+        # if probability_value <= 0:
+        #     print("probability ")
+        #     return {}, ''
 
         # Search for Adjacent Tile
         if self.tile_array[px][py] != 0:
             # print('tile already exists, using actual tile:', self.tile_array[px][py])
             tile_type = 'adjacent'
             # print("self.matching_tile_data[self.tile_array[px][py]][op_index]: ", self.matching_tile_data[self.tile_array[px][py]][op_index] )
-            try:
-                for tile in self.matching_tile_data[self.tile_array[px][py]][op_index]:
-                # for tile, percentage in self.matching_tile_data[self.tile_array[px][py]][op_index].items():
-                    base_probability = 1
+            modified_probabilities = {tile: 1 for tile in self.matching_tile_data[self.tile_array[px][py]][op_index]}
+
+                # for tile in self.matching_tile_data[self.tile_array[px][py]][op_index]:
+                #     base_probability = 1
                     # base_probability = self.base_probability[tile][op_index]
-                    tiles_to_check[tile] = 1
+                    # tiles_to_check[tile] = 1
                     # tiles_to_check[tile] = round(probability_value * base_probability * percentage * 2.5, 2)
-
-                # New Addition
-                # for tile in self.tiles_array_probabilities[px][py].keys():
-                #     for possible_tile in self.matching_tile_data[tile][op_index]:
-                #         base_probability = 1
-                #         tiles_to_check[tile] = 1
-
-            except KeyError:
-                print("self.tile_array[px][py]: ", self.tile_array[px][py])
-                print('matching tile data:', self.matching_tile_data)
-
-
-
         else:
             # Search for Adjacent Probabilities
-            if len(self.tiles_array_probabilities[px][py].keys()) < 1 or probability_value <= 0:
+            if not self.tiles_array_probabilities[px][py] or probability_value <= 0:
                 # print('No nearby tiles, probabilities to choose from or probability value is <= 0')
                 return {}, ''  # nothing to return
 
             tile_type = 'probability'
             # print('tile does not exist yet, extending from probabilities')
-            for key in self.tiles_array_probabilities[px][py].keys():
-                for possible_tile in self.matching_tile_data[key][op_index]:
-                # for possible_tile, percentage in self.matching_tile_data[key][op_index].items():
-                    base_probability = 1
+
+
+            modified_probabilities = {possible_tile: 1 for key in self.tiles_array_probabilities[px][py].keys()
+                              for possible_tile in self.matching_tile_data[key][op_index]}
+
                     # base_probability = self.base_probability[possible_tile][op_index]
                     # tiles_to_check[possible_tile] = round(probability_value * base_probability * percentage, 2)
-                    tiles_to_check[possible_tile] = 1
 
         # Find Top Probability Values
-        modified_probabilities = tiles_to_check
-        # modified_probabilities = dict(tiles_to_check.most_common())
-        # print('returning:', modified_probabilities)
+        # modified_probabilities = tiles_to_check
         return modified_probabilities, tile_type
 
     def check_decided_neighbors(self, x, y):
@@ -392,5 +419,9 @@ class WaveFunctionCollapse:
         return False
 
     def reset_entropy(self) -> None:
+        # print('reset_entropy')
         # Reset to Default Value
         self.lowest_entropy = [(999, 999), 999]
+
+        if self.gui.lbl_stats:
+            self.gui.lbl_stats.text = 'Lowest Entropy|(%s, %s): %s' % (999, 999, 999)

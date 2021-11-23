@@ -1,9 +1,9 @@
 # kivy-wfc
 Wave Function Collapse Using Python with Kivy as Visualizer
-## Current Progress 11/19/2021
-Finally solved my propagation issue! Watching these tiles resolve is pretty **mesmerizing**.
-![](docs/progress-11192021.gif)
-![](docs/progress-11192021-2.gif)
+## Current Progress 11/22/2021
+Did some more optimization by using List Comprehensions and Cached calculations for Lowest Entropy
+![](docs/progress-11222021.gif)
+
 ## Next Steps
 Now a proof of concept exists, i'm going to define a project plan to make this a module for other developers to feed their own input and use within their existing apps.
 ## Inspiration

@@ -93,8 +93,8 @@ class Content(FloatLayout):
         # self.tile_set_file = 'wang_tiles_classic.pickle'
         # self.tile_set_file = 'grass_water_simple.pickle'
         # self.tile_set_file = 'test1.pickle'
-        # self.tile_set_file = 'grass.pickle'
-        self.tile_set_file = 'dungeon_simple.pickle'
+        self.tile_set_file = 'grass_water.pickle'
+        # self.tile_set_file = 'dungeon_simple.pickle'
 
         # self.tile_palette.in_animation = Animation(pos_hint={'right': .25}, duration=.10)
         # self.tile_palette.out_animation = Animation(pos_hint={'right': .005}, duration=.10)
@@ -106,8 +106,8 @@ class Content(FloatLayout):
         self.prob_palette.btn_close.pos_hint = {'right': 1, 'top': 1}
         self.prob_palette.btn_close.size_hint = 0.3, 0.05
 
-        self.x_max = 15
-        self.y_max = 15
+        self.x_max = 50
+        self.y_max = 50
         self.tile_size = 3
         self.displayed_size = 27
 
@@ -118,6 +118,8 @@ class Content(FloatLayout):
 
         if self.tile_set_file:
             self.load_initial_tileset()
+
+        self.wang_tiles_map.wfc.force_weighted_placement()
 
     def generate(self, count):
         if self.wang_tiles_map:
@@ -161,8 +163,8 @@ class Content(FloatLayout):
         # Change Tileset Used
         print('Selected File: %s' % selected_file)
         if self.wang_tiles_map:
-            self.reset_map_texture()
             self.wang_tiles_map.load_tile_set_data(selected_file[0])
+            self.reset_map_texture()
 
     def modify_probability_popup(self, lbl):
         if self.wang_tiles_map:

@@ -130,8 +130,6 @@ class Map(Scatter):
             self.cursor.increment_x(1)
             self.cursor.increment_y(-1)
 
-        elif keycode == '114':  # R
-            self.reset_map_texture()
         elif keycode == '98':  # B
             self.generate_iter += 1
 
@@ -175,8 +173,11 @@ class Map(Scatter):
         return super(self.__class__, self).on_touch_down(touch)
 
     def place_tile(self, x, y, dt=0):
-        key, texture = self.wfc.tile_array[x][y], self.tiles[self.wfc.tile_array[x][y]]
-        self.tile_rect_array[x][y].texture = texture
+        try:
+            key, texture = self.wfc.tile_array[x][y], self.tiles[self.wfc.tile_array[x][y]]
+            self.tile_rect_array[x][y].texture = texture
+        except KeyError:
+            print(x, y, self.wfc.tile_array[x][y])
 
     def print_stats(self):
         super_print('Print Stats')
@@ -333,10 +334,11 @@ class Map(Scatter):
 
     def reset_map_texture(self):
         super_print('Reseting Map!')
-        self.wfc.reset_generation_data()
+
         for y in range(self.y_max):
             for x in range(self.x_max):
                 self.reset_tex(self.tile_rect_array[x][y], (self.tile_size, self.tile_size))
+        self.wfc.reset_generation_data()
 
     def resize_map(self):
         self.tile_rect_array = None

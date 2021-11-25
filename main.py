@@ -93,7 +93,14 @@ class Content(FloatLayout):
         # self.tile_set_file = 'wang_tiles_classic.pickle'
         # self.tile_set_file = 'grass_water_simple.pickle'
         # self.tile_set_file = 'test1.pickle'
-        self.tile_set_file = 'grass_water.pickle'
+        # self.tile_set_file = 'fe_0.pickle'
+        self.tile_set_file = 'fe_32x.pickle'
+        # self.tile_set_file = 'fe_19.pickle'
+        # self.tile_set_file = 'fe_25H.pickle'
+        # self.tile_set_file = 'fe_11H.pickle'
+        # self.tile_set_file = 'fe_1.pickle'
+        # self.tile_set_file = 'grass_corner.pickle'
+        # self.tile_set_file = 'grass_water.pickle'
         # self.tile_set_file = 'dungeon_simple.pickle'
 
         # self.tile_palette.in_animation = Animation(pos_hint={'right': .25}, duration=.10)
@@ -106,10 +113,11 @@ class Content(FloatLayout):
         self.prob_palette.btn_close.pos_hint = {'right': 1, 'top': 1}
         self.prob_palette.btn_close.size_hint = 0.3, 0.05
 
-        self.x_max = 50
-        self.y_max = 50
-        self.tile_size = 3
-        self.displayed_size = 27
+        self.x_max = 20
+        self.y_max = 20
+        self.tile_size = 16
+        self.displayed_size = 32
+        # self.displayed_size = 27
 
         self.wang_tiles_map = Map(self.x_max, self.y_max, self.tile_size, tile_set_file=self.tile_set_file)
         self.add_widget(self.wang_tiles_map, index=99)
@@ -388,25 +396,25 @@ class Content(FloatLayout):
                 # lbl_array[row][i] = lbl
                 grid.add_widget(lbl)
 
-    def lbl_test(self, tile, prob, input_prob, lbl_prob, lbl_prob_rect, main_tile, row, btn_change_prob, dir_lbl, touch, *args):
-
-        if dir_lbl.collide_point(*touch.pos):
-            # print('\nlbl_test')
-            lbl_prob.text = 'Tile %s: %s%%' % (tile, prob * 100)
-            lbl_prob_rect.texture = self.wang_tiles_map.tiles[tile]
-            input_prob.text = str(prob)
-            # print('tile:', tile)
-            # print('prob:', prob)
-            # print('call backs before:', btn_change_prob._callbacks)
-            if len(btn_change_prob._callbacks) > 0:
-                for cb in btn_change_prob._callbacks:
-                    btn_change_prob.unbind(on_press=cb)
-                    btn_change_prob._callbacks.remove(cb)
-
-            partial_cb = partial(self.change_tile_probability, main_tile.text, tile, row, input_prob, lbl_prob, dir_lbl)
-            btn_change_prob.bind(on_press=partial_cb)
-            btn_change_prob._callbacks.append(partial_cb)
-            # print('call backs after:', btn_change_prob._callbacks)
+    # def lbl_test(self, tile, prob, input_prob, lbl_prob, lbl_prob_rect, main_tile, row, btn_change_prob, dir_lbl, touch, *args):
+    #
+    #     if dir_lbl.collide_point(*touch.pos):
+    #         # print('\nlbl_test')
+    #         lbl_prob.text = 'Tile %s: %s%%' % (tile, prob * 100)
+    #         lbl_prob_rect.texture = self.wang_tiles_map.tiles[tile]
+    #         input_prob.text = str(prob)
+    #         # print('tile:', tile)
+    #         # print('prob:', prob)
+    #         # print('call backs before:', btn_change_prob._callbacks)
+    #         if len(btn_change_prob._callbacks) > 0:
+    #             for cb in btn_change_prob._callbacks:
+    #                 btn_change_prob.unbind(on_press=cb)
+    #                 btn_change_prob._callbacks.remove(cb)
+    #
+    #         partial_cb = partial(self.change_tile_probability, main_tile.text, tile, row, input_prob, lbl_prob, dir_lbl)
+    #         btn_change_prob.bind(on_press=partial_cb)
+    #         btn_change_prob._callbacks.append(partial_cb)
+    #         # print('call backs after:', btn_change_prob._callbacks)
 
     def change_tile_probability(self, origin_tile, tile, index, input, lbl_prob, dir_lbl, *args):
         print("change_tile_probability")

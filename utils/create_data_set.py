@@ -306,19 +306,22 @@ def pickle_tile_set_data(tileset_file: str, tile_size: int, rotate_tiles: bool =
                     tile_side_data[tile_number] = obtain_side_pixel_data(rotated_im, tile_size)
                     tile_number += 1
 
-    # Create Identical Tile Data
-    # neighbor_tile_data, base_probability = find_neighboring_tiles(tile_grid, tiles.keys())
+    if pixel_match:
+        tile_data, base_probability = create_matching_tiles(tile_side_data, tile_size)
+    else:
+        # Create Identical Tile Data
+        tile_data, base_probability = find_neighboring_tiles(tile_grid, tiles.keys())
 
-    neighbor_tile_data, base_probability = create_matching_tiles(tile_side_data, tile_size)
 
     # Add Blank-White "0" Tile
     pixel_data = b'\x00\x00\x00\xff' * tile_size * tile_size
     tiles[0] = pixel_data  # "0" integer is the placeholder for blank tile
 
     with open(pickle_file, 'wb') as f:
+        pickle.dump(tile_size, f)
         pickle.dump(tiles, f)
         # pickle.dump(tile_side_data, f)
-        pickle.dump(neighbor_tile_data, f)
+        pickle.dump(tile_data, f)
         pickle.dump(base_probability, f)
 
     # # Verify Correct Data
@@ -330,7 +333,7 @@ def pickle_tile_set_data(tileset_file: str, tile_size: int, rotate_tiles: bool =
     print(tile_grid)
     # print('Base Probability:', base_probability)
     print('Neighboring Tile Data:')
-    for key, direction_key in neighbor_tile_data.items():
+    for key, direction_key in tile_data.items():
         print('Tile: %s' % key)
         print('\tSouth:', direction_key[0])
         print('\tEast:', direction_key[1])
@@ -338,7 +341,7 @@ def pickle_tile_set_data(tileset_file: str, tile_size: int, rotate_tiles: bool =
         print('\tWest:', direction_key[3])
 
 
-def load_tile_textures(pickle_file, tile_size):
+def load_tile_textures(pickle_file: str):
     print('Loading %s.' % pickle_file)
 
     tile_textures = {}
@@ -346,6 +349,7 @@ def load_tile_textures(pickle_file, tile_size):
     base_probability = {}
 
     with open(pickle_file, 'rb') as f:
+        tile_size = pickle.load(f)  # tile size
         tiles_pixel_data = pickle.load(f)  # tile pixel data
         matching_tile_data = pickle.load(f)  # all matching tiles per tile
         base_probability = pickle.load(f)  # all matching tiles per tile
@@ -371,7 +375,7 @@ def load_tile_textures(pickle_file, tile_size):
     print('Matching Tile Data:', matching_tile_data)
     print('Base Probabilities:', base_probability)
 
-    return tile_textures, matching_tile_data, base_probability
+    return tile_size, tile_textures, matching_tile_data, base_probability
 
 
 def untexture_tiles(tiles):
@@ -415,16 +419,24 @@ if __name__ == '__main__':
     tile_maps/grass_water.png, 3
     """
 
-    file_name = '../tile_maps/grass_water.png'
-    file_name = '../tile_maps/flowers.png'
-    file_name = '../tile_maps/dungeon_simple.png'
-    file_name = '../tile_maps/test1.png'
-    file_name = '../tile_maps/grass_water_simple.png'
-    file_name = '../tile_maps/wang_tiles_classic.png'
-    file_name = '../tile_maps/grass.png'
-    sampling_size = 3  # N x N
-    rotate_the_tiles = True
-    pixel_match = True
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/grass_water.png', 3, True, True
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/flowers.png', 3, True, True
+    file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/dungeon_simple.png', 3, True, True
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/test1.png', 3, False, True
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/grass_water_simple.png', 3, True, True
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/wang_tiles_classic.png', 3, True, True
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/grass.png', 3, True, True
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/grass_corner.png', 3, True, True
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/fe_11H.png', 16, False, False
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/fe_32x.png', 16, False, False
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/fe_19.png', 16, False, False
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/fe_17.png', 16, False, False
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/fe_25H.png', 16, False, False
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/fe_30.png', 16, False, False
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/fe_1.png', 16, False, False
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/fe_6.png', 16, False, False
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/fe_0.png', 16, False, False
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/jungle.png', 16, False, False
 
     #  Create the Constraint Data Set
-    pickle_tile_set_data(file_name, sampling_size, rotate_the_tiles, pixel_match)
+    pickle_tile_set_data(file_name, tile_size, rotate_the_tiles, pixel_match)

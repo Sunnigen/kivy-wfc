@@ -194,10 +194,10 @@ class Map(Scatter):
         print(self.wfc.undecided_tiles)
         print('Lowest Entropy:', self.wfc.lowest_entropy)
 
-        print('\nGeneration Stats:')
-        print('tile_chosen_from_weighted_probabilities:', self.wfc.tile_chosen_from_weighted_probabilities)
-        print('tile_chosen_randomly:', self.wfc.tile_chosen_randomly)
-        print('probability_reset:', self.wfc.probability_reset)
+        # print('\nGeneration Stats:')
+        # print('tile_chosen_from_weighted_probabilities:', self.wfc.tile_chosen_from_weighted_probabilities)
+        # print('tile_chosen_randomly:', self.wfc.tile_chosen_randomly)
+        # print('probability_reset:', self.wfc.probability_reset)
 
     def update_palette(self):
         x, y = self.cursor.x_coord, self.cursor.y_coord
@@ -312,8 +312,8 @@ class Map(Scatter):
 
     def reset_cursor(self):
         if self.cursor:
+            self.layout.canvas.remove(self.cursor)
             self.cursor = None
-
         with self.layout.canvas:
             hue = Color(0, 0, 0, 1)
             self.cursor = MapCursor(self, (self.x_max, self.y_max), self.tile_size, hue)
@@ -338,9 +338,12 @@ class Map(Scatter):
         for y in range(self.y_max):
             for x in range(self.x_max):
                 self.reset_tex(self.tile_rect_array[x][y], (self.tile_size, self.tile_size))
+                self.tile_rect_array[x][y].pos = (x * self.tile_size) + (x * self.border_len), (y * self.tile_size) + (y * self.border_len)
+        self.reset_cursor()
         self.wfc.reset_generation_data()
 
     def resize_map(self):
+        print('resize map', self.tile_size)
         self.tile_rect_array = None
         self.layout.canvas.clear()
         self.tile_rect_array = [[None for y in range(self.y_max)] for x in range(self.x_max)]
@@ -367,7 +370,7 @@ class Map(Scatter):
         self.wfc.x_max, self.wfc.y_max = x_max, y_max
 
         # self.wfc.tile_range = int(self.wfc.x_max * self.wfc.y_max)
-        self.wfc.tile_range = 4
+        # self.wfc.tile_range = 4
         # self.wfc.tile_range = (self.x_max + self.y_max)/4  # Subtract .1 so we can at least retain some probability data at max tile range
         # if self.wfc.tile_range < 1:
         #     self.wfc.tile_range = 1
@@ -394,7 +397,8 @@ class Map(Scatter):
         else:
             tileset_file = file
         # print('Loading Tileset File: %s' % tileset_file)
-        self.tiles, self.wfc.matching_tile_data, self.wfc.base_probability = create_data_set.load_tile_textures(tileset_file, self.tile_size)
+        self.tile_size, self.tiles, self.wfc.matching_tile_data, self.wfc.base_probability = \
+            create_data_set.load_tile_textures(tileset_file)
         # print('tiles:', self.tiles)
         # self.tile_palette.load_tile_palette(self.tiles, self.wfc.base_probability)
 

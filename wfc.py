@@ -40,7 +40,7 @@ class WaveFunctionCollapse:
 
     # Generation Counters
     attempts: int = 0
-    tile_chosen_from_weighted_probabilities: int = 0
+    # tile_chosen_from_weighted_probabilities: int = 0
     tile_chosen_randomly: int = 0
     probability_reset: int = 0
 
@@ -54,7 +54,7 @@ class WaveFunctionCollapse:
 
         # Subtract .1 so we can at least retain some probability data at max tile range
         # self.tile_range = (width * height) // 4
-        self.tile_range = 3
+        self.tile_range = 2
         self.tile_range += 0.1
 
         self.undecided_tiles = deque()
@@ -75,7 +75,7 @@ class WaveFunctionCollapse:
         self.impossible_tiles = []
         shuffle(self.undecided_tiles)
         self.attempts = 0
-        self.tile_chosen_from_weighted_probabilities = 0
+        # self.tile_chosen_from_weighted_probabilities = 0
         self.tile_chosen_randomly = 0
         self.probability_reset = 0
 
@@ -166,6 +166,10 @@ class WaveFunctionCollapse:
             self.gui.generate_iter = 0
             return
 
+        if self.lowest_entropy[1] == 999:
+            self.find_lowest_entropy()
+            return
+
         # 2. Select Tile Index with Lowest Entropy
         x, y = self.lowest_entropy[0]
 
@@ -177,19 +181,20 @@ class WaveFunctionCollapse:
         new_tile = self.new_tile_based_on_surrounding_tiles(x, y)
 
         # 5. Update Probabilities Based on Tile Selected At Coordinate
-        # if new_tile:
+        self.reset_entropy()
+        if new_tile:
             # print('new tile:', new_tile)
             # Update Tile Arrays
-        self.tile_chosen_from_weighted_probabilities += 1
-        self.tile_array[x][y] = new_tile
-        self.field.walls.append((x, y))
-        self.reset_entropy()
-        self.probability_sphere(x, y, new_tile)
-        self.gui.place_tile(x, y)
+            # self.tile_chosen_from_weighted_probabilities += 1
+            self.tile_array[x][y] = new_tile
+            self.field.walls.append((x, y))
+
+            self.probability_sphere(x, y, new_tile)
+            self.gui.place_tile(x, y)
+
+
         if self.lowest_entropy[1] == 999:
             self.find_lowest_entropy()
-
-
         # 6. Find Lowest Entropy
         # print('emptying probabilities: ', x, y)
         self.tiles_array_probabilities[x][y] = {}
@@ -260,7 +265,7 @@ class WaveFunctionCollapse:
                 self.impossible_tiles.append((i, j))
                 # self.undecided_tiles.remove((i, j))
                 # self.tiles_array_probabilities[i][j] = {}
-                self.gui.continuous_generation = False
+                # self.gui.continuous_generation = False
 
     def obtain_probabilities_list(self, new_tile, i, j, x, y, iteration):
         probability_tile_list = []
@@ -347,7 +352,7 @@ class WaveFunctionCollapse:
         for m in match_list:
             if new_tile not in m:
                 # New Tile Does Not Match Surroundings!
-                print("# New Tile at (%s, %s) Does Not Match Surroundings!" % (x, y))
+                print("# New Tile: %s at (%s, %s) Does Not Match Surroundings!" % (new_tile, x, y))
                 print("match_list: ", match_list)
                 return None
         # New Tile is a Good Match

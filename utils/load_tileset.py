@@ -370,5 +370,4 @@ if __name__ == '__main__':
     # file, tile_size, rotated_tiles = 'tile_maps/dungeon_simple.png', 3, True
     file, tile_size, rotated_tiles = 'tile_maps/grass_corner.png', 3, True
     # file, tile_size, rotated_tiles = 'tile_maps/grass_water.png', 3, True
-
     pickle_tile_set_data(file, tile_size, rotated_tiles)

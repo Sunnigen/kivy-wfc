@@ -5,13 +5,15 @@ Attempted other tiles maps(Fire Emblem 7 GBA). The contradictions come from the 
 ![](docs/progress-11252021.gif)
 
 Below is its input map:
+
 ![](tile_maps/fe_30.png)
 
 
 Here is another instance, a sea boat map(Fire Emblem 7 GBA):
-![](docs/progress-11252021.png)
+![](docs/progress-11252021.PNG)
 
 Below is its input map:
+
 ![](tile_maps/fe_17.png)
 
 ## Next Steps

@@ -412,16 +412,9 @@ def obtain_side_pixel_data(cropped_im, tile_size):
 
 if __name__ == '__main__':
 
-
-    """
-    tile_maps/wang_tiles_test_simple.png, 3
-    tile_maps/dungeon_simple.png, 3
-    tile_maps/grass_water.png, 3
-    """
-
     # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/grass_water.png', 3, True, True
-    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/flowers.png', 3, True, True
-    file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/dungeon_simple.png', 3, True, True
+    file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/flowers.png', 3, False, False
+    # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/dungeon_simple.png', 3, True, True
     # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/test1.png', 3, False, True
     # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/grass_water_simple.png', 3, True, True
     # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/wang_tiles_classic.png', 3, True, True

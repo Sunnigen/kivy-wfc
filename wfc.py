@@ -54,7 +54,7 @@ class WaveFunctionCollapse:
 
         # Subtract .1 so we can at least retain some probability data at max tile range
         # self.tile_range = (width * height) // 4
-        self.tile_range = 2
+        self.tile_range = width * height
         self.tile_range += 0.1
 
         self.undecided_tiles = deque()
@@ -173,7 +173,7 @@ class WaveFunctionCollapse:
         # 2. Select Tile Index with Lowest Entropy
         x, y = self.lowest_entropy[0]
 
-        # 3. Check if Tile with Lowest Entropy Exists or Pick the Longest Lasting Undecided Tile
+        # 3. Check if Tile with Lowest Entropy Exists or Pick the Longest Lasting Undecided Tidsle
         if (x, y) in self.undecided_tiles:
             self.undecided_tiles.remove((x, y))
 
@@ -247,7 +247,8 @@ class WaveFunctionCollapse:
                 self.tiles_array_probabilities[i][j] = probability_list
 
                 # Check if Good Candidate for Next Lowest Entropy Selection
-                entropy_score = len(probability_list)
+                # TODO: Play with idea that entropy_score should also include distance from origination tile
+                entropy_score = len(probability_list) + abs(x - i) + abs(y - j)
 
                 if entropy_score <= self.lowest_entropy[1]:
                     self.lowest_entropy = [(i, j), entropy_score]
@@ -307,14 +308,14 @@ class WaveFunctionCollapse:
             final_tile_type = 'adjacent'
         elif probability_tile_list:
             # Combine All Probabilities
-            if len(self.tiles_array_probabilities[i][j].keys()) > 0:
+            if len(self.tiles_array_probabilities[i][j]) > 0:
                 probability_tile_list.append(self.tiles_array_probabilities[i][j])
-            probability_list = helper_functions.dict_combine(probability_tile_list)
-            # probability_list = helper_functions.dict_intersect(probability_tile_list)
+            # probability_list = helper_functions.dict_combine(probability_tile_list)
+            probability_list = helper_functions.dict_intersect(probability_tile_list)
             final_tile_type = 'probability'
 
-        # print('Final Tile Type: %s' % final_tile_type)
-        # print('Final Probabilities:', probability_list)
+        print('Final Tile Type: %s' % final_tile_type)
+        print('Final Probabilities:', probability_list)
 
         # print('returning complete probability_list:', probability_list)
         return probability_list, final_tile_type

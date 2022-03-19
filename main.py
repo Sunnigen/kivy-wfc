@@ -94,7 +94,8 @@ class Content(FloatLayout):
         # self.tile_set_file = 'grass_water_simple.pickle'
         # self.tile_set_file = 'test1.pickle'
         # self.tile_set_file = 'fe_0.pickle'
-        self.tile_set_file = 'fe_32x.pickle'
+        self.tile_set_file = 'flowers.pickle'
+        # self.tile_set_file = 'fe_32x.pickle'
         # self.tile_set_file = 'fe_19.pickle'
         # self.tile_set_file = 'fe_25H.pickle'
         # self.tile_set_file = 'fe_11H.pickle'
@@ -164,6 +165,7 @@ class Content(FloatLayout):
     def load_initial_tileset(self, *args):
         if self.wang_tiles_map:
             self.wang_tiles_map.load_tile_set_data()
+            self.reset_map_texture()
 
     def selected_tileset(self, instance, selected_file, *args):
         # print('Directory Path:', os.path.dirname(os.path.realpath(__file__)))

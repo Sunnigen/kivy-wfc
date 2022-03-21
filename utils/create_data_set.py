@@ -34,14 +34,13 @@ def convert_im_bytes_to_pixels(png_bytes: bytes) -> bytes:
             # size = byteImg.size
     return byteImg.tobytes()
 
-
 def rgb_comparision(tile_data: dict,
                     initial_rgb_list: list,
                     delta_threshold: float,
                     index: int,
                     oppos_index: int) -> Dict[str, int]:
     # print('rgb comparision', tile_data)
-    matching_list = {}
+    matching_list = set()
     # Compare RGB Values and Find Matching Tiles
     for key, rgb_list in tile_data.items():
         if key == '1':
@@ -54,21 +53,58 @@ def rgb_comparision(tile_data: dict,
             # print('%s does not match' % key)
             pass
         else:
-            # print('tile: %s is a matching tile' % key)
-            matching_list[key] = 1
+            print('tile: %s is a matching tile' % key)
+            matching_list.add(key)
+            # matching_list[key] = 1
             # matching_tiles[initial_key][index].append(key)
 
     # Assign Default/Equal Probability From All Tiles
     # TODO: Find a way to modify percentages based on compatibility of tiles
-    keys = len(matching_list.keys())
-    percentage = 0
-    if keys != 0:
-        percentage = round(1/keys, 2)
+    # keys = len(matching_list.keys())
+    # percentage = 0
+    # if keys != 0:
+    #     percentage = round(1/keys, 2)
 
-    for key in matching_list.keys():
-        matching_list[key] = percentage
+    # for key in matching_list.keys():
+    #     matching_list[key] = percentage
 
     return matching_list
+
+
+# def rgb_comparision(tile_data: dict,
+#                     initial_rgb_list: list,
+#                     delta_threshold: float,
+#                     index: int,
+#                     oppos_index: int) -> Dict[str, int]:
+#     # print('rgb comparision', tile_data)
+#     matching_list = {}
+#     # Compare RGB Values and Find Matching Tiles
+#     for key, rgb_list in tile_data.items():
+#         if key == '1':
+#             continue
+#         # resultant = np.subtract(list(initial_rgb_list[index].pixels), list(rgb_list[oppos_index].pixels)) < delta_threshold
+#         resultant = abs(np.subtract(list(initial_rgb_list[index]), list(rgb_list[oppos_index]))) <= delta_threshold
+#
+#         if False in resultant:
+#         # if count > max_false:
+#             # print('%s does not match' % key)
+#             pass
+#         else:
+#             # print('tile: %s is a matching tile' % key)
+#             matching_list[key] = 1
+#             # matching_tiles[initial_key][index].append(key)
+#
+#     # Assign Default/Equal Probability From All Tiles
+#     # TODO: Find a way to modify percentages based on compatibility of tiles
+#     keys = len(matching_list.keys())
+#     percentage = 0
+#     if keys != 0:
+#         percentage = round(1/keys, 2)
+#
+#     for key in matching_list.keys():
+#         matching_list[key] = percentage
+#
+#     return matching_list
 
 
 def print_matching_tiles(matching_tiles: Dict[str, int]) -> None:
@@ -311,7 +347,7 @@ def pickle_tile_set_data(tileset_file: str, tile_size: int, rotate_tiles: bool =
     else:
         # Create Identical Tile Data
         tile_data, base_probability = find_neighboring_tiles(tile_grid, tiles.keys())
-
+    print("tile data", tile_data)
 
     # Add Blank-White "0" Tile
     pixel_data = b'\x00\x00\x00\xff' * tile_size * tile_size
@@ -323,6 +359,7 @@ def pickle_tile_set_data(tileset_file: str, tile_size: int, rotate_tiles: bool =
         # pickle.dump(tile_side_data, f)
         pickle.dump(tile_data, f)
         pickle.dump(base_probability, f)
+
 
     # # Verify Correct Data
     print('\n\nThere are %s unique tiles in %s' % (len(list(tiles.keys())), tileset_file))
@@ -413,7 +450,7 @@ def obtain_side_pixel_data(cropped_im, tile_size):
 if __name__ == '__main__':
 
     # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/grass_water.png', 3, True, True
-    file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/flowers.png', 3, False, False
+    file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/flowers.png', 3, False, True
     # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/dungeon_simple.png', 3, True, True
     # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/test1.png', 3, False, True
     # file_name, tile_size, rotate_the_tiles, pixel_match = '../tile_maps/grass_water_simple.png', 3, True, True

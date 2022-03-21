@@ -74,7 +74,6 @@ class Map(Scatter):
 
     def on_keyboard_down(self, keyboard, keycode, *args):
         keycode = str(keycode)
-        # print("keycode: %s" % keycode)
 
         # Continuous Generation Toggle
         if keycode == '32':  # Space
@@ -305,9 +304,10 @@ class Map(Scatter):
                 return
 
     def center_map(self):
+        print("center_map")
         self.scale = 6.0
         self.update_size()
-        self.pos = ((Window.width/2) - (self.size[0] / 2) * self.scale, (Window.height/2) - (self.size[1] / 2) * self.scale)
+        self.pos = ((Window.width/2) - (self.size[0] / 2), (Window.height/2) - (self.size[1] / 2))
         # self.pos = ((self.size[0] / 2), (self.y_max * self.tile_size * 0.5) - (self.size[1] / 2))
 
     def reset_cursor(self):

@@ -92,6 +92,7 @@ class Content(FloatLayout):
         super(Content, self).__init__(**kwargs)
         # self.tile_set_file = 'wang_tiles_classic.pickle'
         # self.tile_set_file = 'grass_water_simple.pickle'
+        # self.tile_set_file = 'grass.pickle'
         # self.tile_set_file = 'test1.pickle'
         # self.tile_set_file = 'fe_0.pickle'
         self.tile_set_file = 'flowers.pickle'
@@ -114,8 +115,8 @@ class Content(FloatLayout):
         self.prob_palette.btn_close.pos_hint = {'right': 1, 'top': 1}
         self.prob_palette.btn_close.size_hint = 0.3, 0.05
 
-        self.x_max = 20
-        self.y_max = 20
+        self.x_max = 14
+        self.y_max = 14
         self.tile_size = 16
         self.displayed_size = 32
         # self.displayed_size = 27
@@ -128,7 +129,7 @@ class Content(FloatLayout):
         if self.tile_set_file:
             self.load_initial_tileset()
 
-        self.wang_tiles_map.wfc.force_weighted_placement()
+        # self.wang_tiles_map.wfc.force_weighted_placement()
 
     def generate(self, count):
         if self.wang_tiles_map:
